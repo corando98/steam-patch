@@ -65,14 +65,14 @@ impl Device for DeviceGeneric {
         vec![
             // Max TDP = 28
             Patch {
-                text_to_find: "return[o,t,n,e=>r((()=>g.Get().SetTDPLimit(e)))".to_string(),
-                replacement_text: format!("return[o,t,{:?},e=>r((()=>g.Get().SetTDPLimit(e)))", self.max_tdp).to_string(),
+                text_to_find: "return[o,t,n,e=>a((()=>p.Get().SetTDPLimit(e)))".to_string(),
+                replacement_text: format!("return[o,t,{:?},e=>a((()=>p.Get().SetTDPLimit(e)))", self.max_tdp).to_string(),
                 destination: PatchFile::Chunk,
             },
             //Max GPU = 2700
             Patch {
-                text_to_find: "return[o,t,n,e=>r((()=>g.Get().SetGPUPerformanceManualMhz(e)))".to_string(),
-                replacement_text: format!("return[o,t,{:?},e=>r((()=>g.Get().SetGPUPerformanceManualMhz(e)))", self.max_gpu).to_string(),
+                text_to_find: "return[o,t,n,e=>a((()=>p.Get().SetGPUPerformanceManualMhz(e)))".to_string(),
+                replacement_text: format!("return[o,t,{:?},e=>a((()=>p.Get().SetGPUPerformanceManualMhz(e)))", self.max_gpu).to_string(),
                 destination: PatchFile::Chunk,
             },
             // Listen to per app changes
