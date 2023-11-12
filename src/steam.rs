@@ -7,7 +7,7 @@ use hyper::{Client, Uri, body};
 use inotify::{Inotify, WatchMask};
 use serde::{Deserialize};
 use std::collections::HashMap;
-use std::env;
+use std::{env, thread};
 use std::f32::consts::E;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Error};
@@ -19,6 +19,7 @@ use tungstenite::connect;
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{Message, WebSocket};
 use std::option::Option;
+use colored::*;
 
 #[derive(Deserialize)]
 struct Tab {
@@ -61,10 +62,11 @@ impl SteamClient {
                     let text_to_find = &patch.text_to_find;
                     let replacement_text = &patch.replacement_text;
                     if content.contains(text_to_find) {
+                        println!("Patched! {}", text_to_find.green());
                         // println!("Found text to replace in {}: '{}'", path_string, text_to_find);
                         *content = content.replace(text_to_find, replacement_text);
                     } else {
-                        println!("Text not found in {}: '{}'", path_string, text_to_find);
+                        println!("Unable to patch, text not found in {}: '{}'", path_string, text_to_find);
                     }
                 } else {
                     // Handle the error if path_str is None
@@ -346,40 +348,71 @@ impl SteamClient {
 
                         match reader.lines().last() {
                             Some(Ok(line)) => {
-                                if line.contains("BVerifyInstalledFiles") {
-                                    println!("BVerifyInstalledFiles - {}", process_flow);
-                                    process_flow = 1;
-                                }
-                                if process_flow == 2 {
-                                    if line.contains("Verification complete") {
-                                        println!("Verification comeplete - {}", process_flow);
 
-                                        if let Some(device) = create_device() {
-                                            match client.patch(device.get_patches()) {
-                                                Ok(_) => println!("Steam patched"),
-                                                Err(_) => eprintln!("Couldn't patch Steam"),
-                                            }          
+                                if line.contains("Shutdown") {
+                                    println!("Shutdown - {}", process_flow);
+                                    if let Some(device) = create_device() {
+                                        match client.unpatch(device.get_patches()) {
+                                            Ok(_) => println!("Steam unpatched"),
+                                            Err(_) => eprintln!("Couldn't unpatch Steam"),
                                         }
-                                        process_flow = 0
+                                        
                                     }
                                 }
-                                if process_flow == 1 {
-                                    if line.contains("Update complete") {
-                                        println!("Update complete - {}", process_flow);
-                                        process_flow = 2;
-                                    }
-                                }
-                                if process_flow == 0 {
-                                    if line.contains("Shutdown") {
-                                        println!("Shutdown - {}", process_flow);
-                                        if let Some(device) = create_device() {
-                                            match client.unpatch(device.get_patches()) {
-                                                Ok(_) => println!("Steam unpatched"),
-                                                Err(_) => eprintln!("Couldn't unpatch Steam"),
-                                            }
+                                if line.contains("Verification") {
+                                    println!("Verification - {}", process_flow);
+                                    if let Some(device) = create_device() {
+                                        // thread::sleep(Duration::from_secs(3));
+                                        match client.patch(device.get_patches()) {
+                                            Ok(_) => println!("Steam patched"),
+                                            Err(_) => eprintln!("Couldn't patch Steam"),
                                         }
                                     }
                                 }
+
+                                // if line.contains("BVerifyInstalledFiles") {
+                                //     println!("BVerifyInstalledFiles - {}", process_flow);
+                                //     process_flow = 1;
+                                // }
+                                // if line.contains("Nothing to do"){
+                                //     println!("Nothing to do");
+                                //     if let Some(device) = create_device() {
+                                //         match client.patch(device.get_patches()) {
+                                //             Ok(_) => println!("Steam patched"),
+                                //             Err(_) => eprintln!("Couldn't patch Steam"),
+                                //         }          
+                                //     }
+                                // }
+                                // if process_flow == 2 {
+                                //     if line.contains("Verification complete") {
+                                //         println!("Verification comeplete - {}", process_flow);
+
+                                //         if let Some(device) = create_device() {
+                                //             match client.patch(device.get_patches()) {
+                                //                 Ok(_) => println!("Steam patched"),
+                                //                 Err(_) => eprintln!("Couldn't patch Steam"),
+                                //             }          
+                                //         }
+                                //         process_flow = 0
+                                //     }
+                                // }
+                                // if process_flow == 1 {
+                                //     if line.contains("Update complete") {
+                                //         println!("Update complete - {}", process_flow);
+                                //         process_flow = 2;
+                                //     }
+                                // }
+                                // if process_flow == 0 {
+                                //     if line.contains("Shutdown") {
+                                //         println!("Shutdown - {}", process_flow);
+                                //         if let Some(device) = create_device() {
+                                //             match client.unpatch(device.get_patches()) {
+                                //                 Ok(_) => println!("Steam unpatched"),
+                                //                 Err(_) => eprintln!("Couldn't unpatch Steam"),
+                                //             }
+                                //         }
+                                //     }
+                                // }
                             }
                             Some(Err(err)) => println!("Error reading line: {}", err),
                             None => println!("The file is empty"),
