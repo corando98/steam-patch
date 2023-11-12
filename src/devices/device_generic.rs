@@ -90,19 +90,19 @@ impl Device for DeviceGeneric {
             // Replace Xbox menu button with Steam one CAUSING CRASH
             // Raw literal strings with escape for REGEX
             Patch {
-                text_to_find: r#"/steaminputglyphs/xbox_button_logo.svg"#.to_string(),
-                replacement_text: r#"return s.createElement(u.ActionGlyph, { button: n, size: u.EActionGlyphSize.Small})"#.to_string(),
+                text_to_find: r#"e="/steaminputglyphs/xbox_button_logo.svg""#.to_string(),
+                replacement_text: r#"return l.createElement(A.ActionGlyph, { button: n, size: A.EActionGlyphSize.Medium})"#.to_string(),
                 
                 // style=\"width: 61.1px; height: auto; margin: -100% 0 -100% 0;\"#.to_string(),
                 destination: PatchFile::Chunk,
             },
 
-            // Change resolution to Native (if Default) after installation
-            Patch {
-                text_to_find: "DownloadComplete_Title\"),i=Ve(n,t.data.appid());const l=(0,H.Q2)();".to_string(),
-                replacement_text: "DownloadComplete_Title\"),i=Ve(n,t.data.appid()); SteamClient.Apps.GetResolutionOverrideForApp(t.data.appid()).then(res => res === \"Default\" && SteamClient.Apps.SetAppResolutionOverride(t.data.appid(), \"Native\")); const l=(0,H.Q2)();".to_string(),
-                destination: PatchFile::Chunk, 
-            },
+            // Change resolution to Native (if Default) after installation DISABLED UNTIL PROPER METHOD
+            // Patch {
+            //     text_to_find: "DownloadComplete_Title\"),i=Ue(n,t.data.appid());const s=(0,x.Q2)();".to_string(),
+            //     replacement_text: "DownloadComplete_Title\"),i=Ue(n,t.data.appid()); SteamClient.Apps.GetResolutionOverrideForApp(t.data.appid()).then(res => res === \"Default\" && SteamClient.Apps.SetAppResolutionOverride(t.data.appid(), \"Native\")); const l=(0,H.Q2)();".to_string(),
+            //     destination: PatchFile::Chunk, 
+            // },
         ]
     }
 
