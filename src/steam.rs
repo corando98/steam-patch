@@ -274,14 +274,19 @@ impl SteamClient {
         let mut client = Self::new();
         if Self::is_running() {
             client.connect().await;
-
             if let Some(device) = create_device() {
+                //Attempt to unpatch previous changes
+                match client.unpatch(device.get_patches()) {
+                    Ok(_) => println!("Unpatching to remove previous patches and repatching."),
+                    Err(_) => eprintln!("Couldn't unpatch Steam"),
+                }
+                //Then repatches new changes
                 match client.patch(device.get_patches()) {
                     Ok(_) => println!("Steam was running and patched"),
                     Err(_) => eprintln!("Couldn't patch Steam"),
                 }
             }
-
+            println!("Rebooting client");
             client.reboot().await;
         }
 
