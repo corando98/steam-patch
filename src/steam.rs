@@ -19,7 +19,6 @@ use tungstenite::connect;
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{Message, WebSocket};
 use std::option::Option;
-use colored::*;
 
 #[derive(Deserialize)]
 struct Tab {
@@ -62,7 +61,7 @@ impl SteamClient {
                     let text_to_find = &patch.text_to_find;
                     let replacement_text = &patch.replacement_text;
                     if content.contains(text_to_find) {
-                        println!("Patched! {}", text_to_find.green());
+                        println!("Patched! {}", text_to_find);
                         // println!("Found text to replace in {}: '{}'", path_string, text_to_find);
                         *content = content.replace(text_to_find, replacement_text);
                     } else {
