@@ -24,26 +24,35 @@ Here is a list of currently available patches that can be applied:
 
 ## 🎯 Supported Devices
 
-Below is a list of devices supported by the Steam Patch:
+Offically tested devices include: ROG Ally, Legion Go
 
-- **Asus Rog Ally** (30 TDP, changes thermal policy) 
-- Aya Neo 2, Geek 1S (28 TDP)
-- GPD WM2 (28 TDP)
-- Any other AMD device (25 TDP)
+For customization a configuration is in place, find the config.toml in the root of the repo. Example below.
 
-⚠️ **Please note**: From version 0.5 onwards, for **Asus Rog Ally**, it becomes necessary to disable **HandyGCCS**. 
-This is because the patch now uses a different method to support the Menu and QAM buttons, 
-and HandyGCCS can interfere with this new approach. Use the following command to disable HandyGCCS:
 ```
-sudo systemctl disable handycon
-```
-To enable it back:
-```
-sudo systemctl enable handycon
-```
+#For changes to reflect on steamUI, restart steam-patch, and restart steam. (Current mitigation)
+main_enabled = true
+tdp_control = true
+gpu_control = true
+max_tdp = 25
+max_gpu = 2800
 
+#ROG ALLY specific toggles
+legacy_tdp = false #true = ryzenadj, false = new method
+mapper = true #Enable disable the QAM and Steam button mapping
+#Experimental
+auto_nkey_recovery = false #Attempts to suspend and resume the device if NKEY is lost
+```
 Before adjusting the TDP, please ensure your device can support the new value. 
-There is a tangible risk of causing damage to your device otherwise. 
+There is a tangible risk of causing damage to your device otherwise.
+
+
+legacy_tdp - False, utilizes ryzenadj method of changing TDP, check if your device is compatible. ie. Legion Go, ROG Ally, etc
+mapper - Only ROG ally for now, maps the QAM/Steam button to the AC/CC buttons.
+auto_nkey_recovery - Extrememly hacky way of recoverying the AC/CC button due to sleep/suspend issue on Ally, use with caution.
+
+## Steam Client
+
+Only compatible with Stable Steam client, use beta branch for beta Steam client (breaks often)
 
 ## Credits
 
