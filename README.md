@@ -11,6 +11,16 @@ chmod +x install.sh
 ./install.sh
 ```
 
+## Updating (binary file)
+
+```
+cd steam-patch
+git pull
+cargo build --release --target x86_64-unknown-linux-gnu
+sudo mv ~/steam-patch/target/x86_64-unknown-linux-gnu/release/steam-patch ~/steam-patch/steam-patch && sudo systemctl restart steam-patch.service
+```
+
+
 ## 📋 Available Patches
 
 Here is a list of currently available patches that can be applied:
