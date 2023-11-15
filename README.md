@@ -17,7 +17,7 @@ chmod +x install.sh
 cd steam-patch
 git pull
 cargo build --release --target x86_64-unknown-linux-gnu
-sudo mv ~/steam-patch/target/x86_64-unknown-linux-gnu/release/steam-patch ~/steam-patch/steam-patch && sudo systemctl restart steam-patch.service
+sudo mv ~/steam-patch/target/x86_64-unknown-linux-gnu/release/steam-patch /usr/bin/steam-patch && sudo systemctl restart steam-patch.service
 ```
 
 
