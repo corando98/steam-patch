@@ -42,7 +42,7 @@ if [ $ARCH_BASE == 0 ]; then
 	if [ $CHIMERA_BASE == 0 ]; then
         	sudo frzr-unlock
 	fi
-	sudo pacman -Sy --noconfirm cargo gcc
+	sudo pacman -Sy --noconfirm cargo gcc pkgconf
 	printf "Installing steam-patch...\n"
 	cargo build -r
 	chmod +x $CURRENT_WD/target/release/steam-patch
