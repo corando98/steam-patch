@@ -135,6 +135,37 @@ impl Device for DeviceGeneric {
                 text_to_find: r#""/steaminputglyphs/ps4_button_options.svg""#.to_string(),
                 replacement_text: r#""/steaminputglyphs/sd_button_menu.svg""#.to_string(),
                 destination: PatchFile::Chunk,
+            },
+
+            // Replace button X -> A
+            Patch { //NOV16
+                text_to_find: r#""/steaminputglyphs/ps_button_x.svg""#.to_string(),
+                replacement_text: r#""/steaminputglyphs/shared_button_a.svg""#.to_string(),
+                destination: PatchFile::Chunk,
+            },
+            // Replace button Squeare -> X
+            Patch { //NOV16
+                text_to_find: r#""/steaminputglyphs/ps_button_square.svg""#.to_string(),
+                replacement_text: r#""/steaminputglyphs/shared_button_x.svg""#.to_string(),
+                destination: PatchFile::Chunk,
+            },
+            // Replace button Triagnle -> Y
+            Patch { //NOV16
+                text_to_find: r#""/steaminputglyphs/ps_button_triangle.svg""#.to_string(),
+                replacement_text: r#""/steaminputglyphs/shared_button_y.svg""#.to_string(),
+                destination: PatchFile::Chunk,
+            },
+            // Replace button Circle -> B
+            Patch { 
+                text_to_find: r#""/steaminputglyphs/ps_button_circle.svg""#.to_string(),
+                replacement_text: r#""/steaminputglyphs/shared_button_b.svg""#.to_string(),
+                destination: PatchFile::Chunk,
+            },
+            // Replace option menu to sd
+            Patch { 
+                text_to_find: r#""/steaminputglyphs/ps5_button_options.svg""#.to_string(),
+                replacement_text: r#""/steaminputglyphs/sd_button_menu.svg""#.to_string(),
+                destination: PatchFile::Chunk,
             }
             ]);
         }
