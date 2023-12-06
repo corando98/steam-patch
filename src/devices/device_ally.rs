@@ -61,9 +61,10 @@ impl Device for DeviceAlly {
                 if let Some(tdp) = per_app.tdp_limit {
                     self.set_tdp(tdp);
                 }
-            }  else {
-                self.set_thermalpolicy(1);
-            }
+            }  
+            // else {
+            //     self.set_thermalpolicy(1);
+            // }
 
             if let Some(gpu) = per_app.gpu_performance_manual_mhz {
                 self.set_gpu(gpu);
@@ -84,11 +85,15 @@ impl Device for DeviceAlly {
     fn set_tdp(&self, tdp: i8) {
         // Update thermal policy
         let thermal_policy = match tdp {
-            val if val < 12 => 2,                 // silent
-            val if (12..=25).contains(&val) => 0, // performance
+            val if val < 11 => 2,                 // silent
+            val if (11..=18).contains(&val) => 0, // performance
             _ => 1,                               // turbo
         };
-        // self.set_thermalpolicy(thermal_policy); 
+        // 5 - 10: Quiet thermal - 2
+        // 11 - 18 : Balanced - 0
+        // 19 - 30: Performance - 1
+
+        self.set_thermalpolicy(thermal_policy); 
 
         let conf = get_global_config();
         if conf.legacy_tdp {
