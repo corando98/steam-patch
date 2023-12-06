@@ -63,7 +63,7 @@ impl Device for DeviceAlly {
                 }
             }  
             else {
-                self.set_thermalpolicy(2);
+                self.set_thermalpolicy(1);
             }
 
             if let Some(gpu) = per_app.gpu_performance_manual_mhz {
