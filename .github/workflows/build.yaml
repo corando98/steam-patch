@@ -22,9 +22,7 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - name: 📚 Checkout Code
         uses: actions/checkout@v2
@@ -73,14 +71,36 @@ jobs:
         with:
           name: steam-patch
           path: target/x86_64-unknown-linux-gnu/release/steam-patch
+      - name: Create Tag
+        if: github.ref == 'refs/heads/main'
+        run: |
+          TAG_NAME="v$(date +'%Y.%m.%d-%H.%M')"
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: ➡️ Compress executable with UPX
+        run: |
+          ls -al
+          pwd
 
-      - name: 🚀 Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: |
-            target/x86_64-unknown-linux-gnu/release/steam-patch
-            install.sh
-            uninstall.sh
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: steam-patch
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/x86_64-unkown-linux-gnu/release/steam-patch
+          asset_name: steam-patch
+          asset_content_type: application/octet-stream

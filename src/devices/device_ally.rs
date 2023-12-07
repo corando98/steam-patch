@@ -61,7 +61,8 @@ impl Device for DeviceAlly {
                 if let Some(tdp) = per_app.tdp_limit {
                     self.set_tdp(tdp);
                 }
-            }  else {
+            }  
+            else {
                 self.set_thermalpolicy(1);
             }
 
@@ -84,11 +85,15 @@ impl Device for DeviceAlly {
     fn set_tdp(&self, tdp: i8) {
         // Update thermal policy
         let thermal_policy = match tdp {
-            val if val < 12 => 2,                 // silent
-            val if (12..=25).contains(&val) => 0, // performance
+            val if val < 9 => 2,                 // silent
+            val if (9..=18).contains(&val) => 0, // performance
             _ => 1,                               // turbo
         };
-        // self.set_thermalpolicy(thermal_policy); 
+        // < 9: Quiet thermal - 2
+        // 9 - 18 : Balanced - 0
+        // 19 - 30: Performance - 1
+
+        self.set_thermalpolicy(thermal_policy); 
 
         let conf = get_global_config();
         if conf.legacy_tdp {
@@ -148,23 +153,12 @@ pub fn pick_device() -> Option<evdev::Device> {
     None
 }
 
-pub fn recover_nkey() -> io::Result<()> {    
-    // Check if a specific USB device is not present
-    println!("ROG Ally detected and USB device 0b05:1abe not present");
-    
-    let command1 = format!("echo '\\_SB.PCI0.SBRG.EC0.CSEE' \"0xB7\" > /proc/acpi/call");
-    let command2 = format!("echo '\\_SB.PCI0.SBRG.EC0.CSEE' \"0xB8\" > /proc/acpi/call");
-    match utils::run_command(&[&command1]) {
-        Ok(_) => println!("Set 0xB7"),
-        Err(e) => println!("Couldn't set 0xB7 {}", e),
-    }
-    thread::sleep(Duration::from_secs(1));
-    match utils::run_command(&[&command2]) {
-        Ok(_) => println!("Set 0xB8"),
-        Err(e) => println!("Couldn't set 0xB8 {}", e),
-    }
-    Ok(())
-}
+use std::process::{Command, Output};
+use std::io::{self, Result};
+use std::thread;
+use std::time::Duration;
+
+
 
 pub fn start_mapper(mut steam:SteamClient) -> Option<tokio::task::JoinHandle<()>> {
     let device = pick_device();
@@ -219,10 +213,6 @@ pub fn start_mapper(mut steam:SteamClient) -> Option<tokio::task::JoinHandle<()>
             println!("No Ally-specific found, retrying in 2 seconds");
 
             thread::sleep(Duration::from_secs(2));
-            if conf.auto_nkey_recovery {
-                println!("N_key lost, attempting to trigger recovery script");
-                let _ = recover_nkey();                 
-            }
             tokio::spawn(async move {
                 start_mapper(steam)
             });

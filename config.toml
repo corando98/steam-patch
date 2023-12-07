@@ -1,16 +1,17 @@
-#For changes to reflect on steamUI, restart steam-patch, and restart steam. (Current mitigation)
+#General Settings
 main_enabled = true
 tdp_control = true
-gpu_control = true
 max_tdp = 30               #If using smokeless bios you can push this higher
 max_gpu = 2700
 
 #Feature toggles
-legacy_tdp = false         #true = ryzenadj, false = ACPI ROG ALLY METHOD
+legacy_tdp = false         #true = ryzenadj, false = WMI calls
 mapper = true              #Enable disable the QAM and Steam button mapping
 spoof_glyphs = true        #Enable to change PS/Xbox buttons to match SD including Steam Menu and Option menu
-nintendo_glyphs = false     #Swaps A <-> B and X <-> Y
+nintendo_glyphs = false     #Swaps A <-> B and X <-> Y (broken)
 
 
-#Experimental ROG ALLY ONLY
-auto_nkey_recovery = false #Attempts to suspend and resume the device if NKEY is lost
+#ROG Ally specific
+granular_tdp = false #Enables the use of thermal_policy to manage TDP.
+
+#When granular_tdp = false, then we have only 3 values possible in the TDP range, each of them setting the thermalpolicy
