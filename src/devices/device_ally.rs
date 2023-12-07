@@ -153,12 +153,6 @@ pub fn pick_device() -> Option<evdev::Device> {
     None
 }
 
-use std::process::{Command, Output};
-use std::io::{self, Result};
-use std::thread;
-use std::time::Duration;
-
-
 
 pub fn start_mapper(mut steam:SteamClient) -> Option<tokio::task::JoinHandle<()>> {
     let device = pick_device();
