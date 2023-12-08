@@ -34,7 +34,7 @@ fn default_tdp_control() -> bool { true }
 fn default_gpu_control() -> bool { true }
 fn default_max_tdp() -> i8 { 15 }
 fn default_max_gpu() -> i16 { 2000 }
-fn default_mapper() -> bool { true }
+fn default_mapper() -> bool { false }
 fn default_legacy_tdp() -> bool { true }
 fn default_auto_nkey_recovery() -> bool { false }
 fn default_spoof_glyphs() -> bool { true }
@@ -66,7 +66,7 @@ pub fn initialize_config() -> Config {
                 gpu_control: true,
                 max_tdp: 15,
                 max_gpu: 2000,
-                mapper: true,
+                mapper: false,
                 legacy_tdp: true,
                 auto_nkey_recovery: false,
                 spoof_glyphs: true,

@@ -6,7 +6,7 @@ max_gpu = 2700
 
 #Feature toggles
 legacy_tdp = false         #true = ryzenadj, false = WMI calls
-mapper = true              #Enable disable the QAM and Steam button mapping
+mapper = false              #Enable disable the QAM and Steam button mapping
 spoof_glyphs = true        #Enable to change PS/Xbox buttons to match SD including Steam Menu and Option menu
 nintendo_glyphs = false     #Swaps A <-> B and X <-> Y (broken)
 
