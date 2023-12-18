@@ -7,6 +7,18 @@ Steam Patch is a tool designed to enhance your Steam experience by applying patc
 curl -L https://github.com/corando98/steam-patch/raw/main/install.sh | sh
 ```
 
+
+### GPU Slider not working? 
+
+Edit the steamos-priv-write
+```
+sudo vi /usr/bin/steamos-polkit-helpers/steamos-priv-write
+```
+For Z1E devices (ROG ALLY, LEGION GO) around line 167, comment as such:
+![Screenshot Terminal2023-12-18 at 16 51 @2x](https://github.com/corando98/steam-patch/assets/9966890/095f8002-9b53-473a-b418-1de71eb68c59)
+
+
+
 ## Updating (binary file)
 
 ```
