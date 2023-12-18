@@ -8,7 +8,7 @@ use crate::steam::SteamClient;
 use crate::{utils, main};
 use std::fs::File as FFile;
 use std::path::Path;
-use std::{fs, env};
+use std::{fs, env, vec};
 use std::process::{Command, Stdio};
 use std::thread;
 use std::time::Duration as DDuration;
@@ -36,6 +36,7 @@ impl Device for DeviceGo {
     }
 
     fn update_settings(&self, request: SettingsRequest) {
+        let conf: config::Config = get_global_config();
         if let Some(per_app) = &request.per_app {
             println!("{:#?}",per_app);
             // TDP changes
@@ -43,7 +44,15 @@ impl Device for DeviceGo {
                 if let Some(tdp) = per_app.tdp_limit {
                     self.set_tdp(tdp);
                 }
-            } 
+            } else {
+                if(conf.legacy_tdp == false){
+                    let command_balanced = &format!("echo '\\_SB.GZFD.WMAA 0 0x2C {}' | sudo tee /proc/acpi/call; sudo cat /proc/acpi/call", 2);
+                    match utils::run_command(&vec!["bash", "-c", command_balanced]) {
+                        Ok(_) => println!("Changed power mode to balanced"),
+                        Err(e) => println!("Ensure acpi_call module not loaded. {}", e),
+                    }
+                }
+            }
             if let Some(gpu) = per_app.gpu_performance_manual_mhz {
                 self.set_gpu(gpu);
             }
@@ -52,6 +61,8 @@ impl Device for DeviceGo {
     //Add more patches for device specific
     fn get_patches(&self) -> Vec<Patch> {
         let mut patches = self.device.get_patches();
+        print!("Adding patches for device specific");
+        print!("{}", patches.len());
         patches.push(Patch {
             text_to_find: String::from("this.m_rgControllers=new Map,\"undefined\"!=typeof SteamClient&&(this.m_hUnregisterControllerDigitalInput"),
             replacement_text: String::from("this.m_rgControllers=new Map; window.HandleSystemKeyEvents = this.HandleSystemKeyEvents; \"undefined\"!=typeof SteamClient&&(this.m_hUnregisterControllerDigitalInput"),
@@ -61,7 +72,31 @@ impl Device for DeviceGo {
     }
 
     fn set_tdp(&self, tdp: i8) {
-        self.device.set_tdp(tdp);
+        let conf: config::Config = get_global_config();
+        if conf.legacy_tdp {
+            self.device.set_tdp(tdp);
+        } else {
+            print!("New TDP: {}", tdp);
+            let command_custom = &format!("echo '\\_SB.GZFD.WMAA 0 0x2C {}' | sudo tee /proc/acpi/call; sudo cat /proc/acpi/call", 255);
+            let target_tdp = tdp as i32;
+            let boost_tdp = (target_tdp) + 2;
+            let command_target = &format!("echo '\\_SB.GZFD.WMAE 0 0x12 {{0x00, 0xFF, 0x02, 0x01, {}, 0x00, 0x00, 0x00}}' | sudo tee /proc/acpi/call; sudo cat /proc/acpi/call", target_tdp);
+            let command_boost = &format!("echo '\\_SB.GZFD.WMAE 0 0x12 {{0x00, 0xFF, 0x03, 0x01, {}, 0x00, 0x00, 0x00}}' | sudo tee /proc/acpi/call; sudo cat /proc/acpi/call", boost_tdp);
+            let command_slow = &format!("echo '\\_SB.GZFD.WMAE 0 0x12 {{0x00, 0xFF, 0x01, 0x01, {}, 0x00, 0x00, 0x00}}' | sudo tee /proc/acpi/call; sudo cat /proc/acpi/call", target_tdp);
+            let commands = vec![
+                vec!["bash", "-c", command_custom], 
+                vec!["bash", "-c", command_target],
+                vec!["bash", "-c", command_boost],
+                vec!["bash", "-c", command_slow],
+            ];
+            for cmd in commands {
+                println!("Command to run: {:?}",cmd);
+                match utils::run_command(&cmd) {
+                    Ok(_) => println!("Set TDP successfully!"),
+                    Err(e) => println!("Couldn't set TDP: {}", e),
+                }
+            }
+        }
     }
 
     fn set_gpu(&self, gpu: i16) {
