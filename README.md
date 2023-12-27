@@ -19,13 +19,10 @@ For Z1E devices (ROG ALLY, LEGION GO) around line 167, comment as such:
 
 
 
-## Updating (binary file)
+## Updating
 
 ```
-cd steam-patch
-git pull
-cargo build --release --target x86_64-unknown-linux-gnu
-sudo mv ~/steam-patch/target/x86_64-unknown-linux-gnu/release/steam-patch /usr/bin/steam-patch && sudo systemctl restart steam-patch.service
+curl -L https://github.com/corando98/steam-patch/raw/main/install.sh | sh
 ```
 
 ## 📋 Available Patches
