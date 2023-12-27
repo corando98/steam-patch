@@ -1,63 +1,55 @@
 #!/bin/bash
 
+# Determine the original non-root user
+if [ "$SUDO_USER" ]; then
+    USER_NAME=$SUDO_USER
+else
+    USER_NAME=$(whoami)
+fi
+
+# Determine the home directory of the user
+USER_HOME=$(eval echo ~$USER_NAME)
+
 echo -e "Installing Steam Patch...\n"
-cd $HOME
-sudo rm -rf ./steam-patch/
-git clone https://github.com/corando98/steam-patch
-cd steam-patch
+cd "$USER_HOME"
+
+# Remove any existing steam-patch directory or file
+sudo rm -rf "$USER_HOME/steam-patch/"
+sudo rm -f /usr/bin/steam-patch
+
+# Clone the repository to get auxiliary files like .service files
+git clone https://github.com/corando98/steam-patch "$USER_HOME/steam-patch"
+cd "$USER_HOME/steam-patch"
 CURRENT_WD=$(pwd)
 
 # Enable CEF debugging
-touch "$HOME/.steam/steam/.cef-enable-remote-debugging"
+touch "$USER_HOME/.steam/steam/.cef-enable-remote-debugging"
 
-which dnf 2>/dev/null
-FEDORA_BASE=$?
+# Download the latest steam-patch binary from GitHub releases
+curl -L $(curl -s https://api.github.com/repos/corando98/steam-patch/releases/latest | grep "browser_download_url" | cut -d '"' -f 4) -o steam-patch
 
-cat /etc/nobara-release
-NOBARA=$?
+# Make the binary executable
+chmod +x steam-patch
 
-if [ $FEDORA_BASE == 0 ]; then
-	echo -e '\nFedora based installation starting.\n'
-	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-	sudo dnf install -y cargo
-	mkdir -p $HOME/rpmbuild/{SPECS,SOURCES}
-	cp steam-patch.spec $HOME/rpmbuild/SPECS
-	rpmbuild -bb $HOME/rpmbuild/SPECS/steam-patch.spec
- 	sudo dnf list --installed | grep steam-patch
-  	STEAM_PATCH_STATUS=$?
-   	if [ $STEAM_PATCH_STATUS == 0 ]; then
-    		sudo dnf remove -y steam-patch
-	fi
-	sudo dnf install -y $HOME/rpmbuild/RPMS/x86_64/steam-patch*.rpm
+# Move the binary to a system path
+sudo mv steam-patch /usr/bin/
+
+# Copy service files and enable services
+sudo cp steam-patch.service /etc/systemd/system/
+sudo cp restart-steam-patch-on-boot.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl stop handycon
+sudo systemctl disable handycon
+sudo systemctl enable steam-patch.service
+sudo systemctl start steam-patch.service
+sudo systemctl enable restart-steam-patch-on-boot.service
+sudo systemctl start restart-steam-patch-on-boot.service
+
+# Handle steamos-polkit-helpers update
+STEAMOS_POLKIT_DIR="/usr/bin/steamos-polkit-helpers"
+if [ -f "$STEAMOS_POLKIT_DIR/steamos-priv-write" ]; then
+    sudo cp "$STEAMOS_POLKIT_DIR/steamos-priv-write" "$STEAMOS_POLKIT_DIR/steamos-priv-write-bkp"
 fi
+sudo cp steamos-priv-write-updated "$STEAMOS_POLKIT_DIR/steamos-priv-write"
 
-which pacman 2>/dev/null
-ARCH_BASE=$?
-
-cat /etc/os-release | grep ChimeraOS
-CHIMERA_BASE=$?
-
-if [ $ARCH_BASE == 0 ]; then
-	echo -e '\nArch based installation starting.\n'
-	if [ $CHIMERA_BASE == 0 ]; then
-        	sudo frzr-unlock
-	fi
-	sudo pacman -Sy --noconfirm cargo gcc pkgconf
-	printf "Installing steam-patch...\n"
-	cargo build -r
-	chmod +x $CURRENT_WD/target/release/steam-patch
-	sudo cp $CURRENT_WD/target/release/steam-patch /usr/bin/steam-patch
-	sed -i "s@\$USER@$USER@g" steam-patch.service
-	sudo cp steam-patch.service /etc/systemd/system/
-	sudo cp restart-steam-patch-on-boot.service /etc/systemd/system/
-	sudo cp /usr/bin/steamos-polkit-helpers/steamos-priv-write /usr/bin/steamos-polkit-helpers/steamos-priv-write-bkp
-	sudo cp steamos-priv-write-updated /usr/bin/steamos-polkit-helpers/steamos-priv-write
-	# Start and enable services
-	sudo systemctl daemon-reload
-	sudo systemctl stop handycon
-	sudo systemctl disable handycon
-	sudo systemctl enable steam-patch.service
-	sudo systemctl start steam-patch.service
-	sudo systemctl enable restart-steam-patch-on-boot.service
-	sudo systemctl start restart-steam-patch-on-boot.service
-fi
+echo -e "\nSteam Patch installation completed."
