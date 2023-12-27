@@ -101,6 +101,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: target/x86_64-unkown-linux-gnu/release/steam-patch
+          asset_path: target/x86_64-unknown-linux-gnu/release/steam-patch
           asset_name: steam-patch
           asset_content_type: application/octet-stream
