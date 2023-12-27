@@ -34,6 +34,9 @@ chmod +x steam-patch
 # Move the binary to a system path
 sudo mv steam-patch /usr/bin/
 
+# Replace placeholder with actual username in steam-patch.service
+sed -i "s/@USER@/$USER_NAME/g" steam-patch.service
+
 # Copy service files and enable services
 sudo cp steam-patch.service /etc/systemd/system/
 sudo cp restart-steam-patch-on-boot.service /etc/systemd/system/
