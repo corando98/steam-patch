@@ -10,6 +10,8 @@ Nice=-15
 IOSchedulingClass=best-effort
 IOSchedulingPriority=0
 ExecStartPre=touch "/home/$USER/.steam/steam/.cef-enable-remote-debugging"
+ExecStartPre=-/sbin/modprobe acpi_call
+
 ExecStart=/usr/bin/steam-patch --user=$USER
 
 [Install]
