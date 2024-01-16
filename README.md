@@ -2,7 +2,7 @@
 Steam Patch is a tool designed to enhance your Steam experience by applying patches to the Steam client.
 
 ## Installation
-Decky is now required
+Decky is now required due to how we patch steam now, this should make steam-patch work as long as decky works.
 
 Decky one liner install
 ```
