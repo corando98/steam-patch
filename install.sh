@@ -56,7 +56,7 @@ fi
 sudo cp steamos-priv-write-updated "$STEAMOS_POLKIT_DIR/steamos-priv-write"
 
 # Gracefully shut down Steam (replace with the specific command if different)
-steam -shutdown || true
+steamrestart
 
 # Wait for a moment to ensure Steam has completely shut down
 sleep 2
